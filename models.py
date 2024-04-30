@@ -13,15 +13,6 @@ class Table(Model):
 class User(Table):
     '''Пользователь'''
     telegram_id = IntegerField()
-
-class Settings(Table):
-    """Настройки"""
-    user = ForeignKeyField(
-        model=User,
-        on_update='CASCADE',
-        on_delete='CASCADE',
-        backref='settings',
-    )
     work_day_start_time = TimeField(
         formats='HH:MM',
         default='08:00'
@@ -33,10 +24,11 @@ class Settings(Table):
 
 class EventDuration(Table):
     """Продолжительности встречи"""
-    settings = ForeignKeyField(
-        model=Settings,
+    user = ForeignKeyField(
+        model=User,
         on_delete='CASCADE',
         on_update='CASCADE',
+        backref='durations',
     )
     minutes = IntegerField(default=90)
 
@@ -84,7 +76,7 @@ class Participant(Table):
 
 db.connect()
 db.create_tables(
-    models=[User, Settings, EventDuration, WorkDay, Event, Participant],
+    models=[User, EventDuration, WorkDay, Event, Participant],
     safe=True,
 )
 db.close()
