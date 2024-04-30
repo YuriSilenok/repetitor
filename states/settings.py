@@ -7,3 +7,4 @@ class SettingsStates(StatesGroup):
     work_day_start_time = State()
     work_day_end_time = State()
     event_duration = State()
+    add_duration = State()

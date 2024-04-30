@@ -10,8 +10,6 @@ kb_settings = InlineKeyboardMarkup(
                 text='Начало дня',
                 callback_data='work_day_start_time',
             ),
-        ],
-        [
             InlineKeyboardButton(
                 text='Конец дня',
                 callback_data='work_day_end_time',
