@@ -4,7 +4,6 @@ from aiogram.fsm.state import State, StatesGroup
 
 class SettingsStates(StatesGroup):
     '''Состояния для настроек'''
-    work_day_start_time = State()
-    work_day_end_time = State()
-    event_duration = State()
-    add_duration = State()
+    select_week = State()
+    set_start_day = State()
+    set_end_day = State()

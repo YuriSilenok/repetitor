@@ -3,26 +3,65 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from models import User
 
-kb_settings = InlineKeyboardMarkup(
-    inline_keyboard=[
+MARKS = {
+    True: '✅',
+    False: '❌'
+}
+
+async def kb_week_menu(week: dict):
+    '''Меню для выбора рабочих дней недели'''
+    inline_keyboard = []
+
+    for key, value in week.items():
+        text = f'{MARKS[value["enable"]]} {key}'
+        if 'start_time' in value:
+            text += f' {value["start_time"].strftime("%H:%M")}-{value["end_time"].strftime("%H:%M")}'
+        inline_keyboard.append(
+            [
+                InlineKeyboardButton(
+                    text=text,
+                    callback_data=f'week_day_id_{key}',
+                )
+            ]
+        )
+
+    inline_keyboard.append(
         [
             InlineKeyboardButton(
-                text='Начало дня',
-                callback_data='work_day_start_time',
+                text='Указать время',
+                callback_data='week_day_next'
             ),
             InlineKeyboardButton(
-                text='Конец дня',
-                callback_data='work_day_end_time',
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text='Продолжительность встечи',
-                callback_data='event_duration',
-            ),
+                text='Отмена',
+                callback_data='setting_cancel'
+            )
         ]
-    ]
-)
+    )
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=inline_keyboard
+    )
+
+# kb_settings = InlineKeyboardMarkup(
+#     inline_keyboard=[
+#         [
+#             InlineKeyboardButton(
+#                 text='Начало дня',
+#                 callback_data='work_day_start_time',
+#             ),
+#             InlineKeyboardButton(
+#                 text='Конец дня',
+#                 callback_data='work_day_end_time',
+#             ),
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 text='Продолжительность встечи',
+#                 callback_data='event_duration',
+#             ),
+#         ]
+#     ]
+# )
 
 kb_cancel = InlineKeyboardMarkup(
     inline_keyboard=[

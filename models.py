@@ -1,5 +1,6 @@
 '''База данных'''
-from peewee import SqliteDatabase, Model, IntegerField, DateField, ForeignKeyField, TimeField
+from peewee import SqliteDatabase, Model, IntegerField, DateField, ForeignKeyField, TimeField, \
+    CharField
 
 db = SqliteDatabase('db.db')
 
@@ -13,14 +14,8 @@ class Table(Model):
 class User(Table):
     '''Пользователь'''
     telegram_id = IntegerField()
-    work_day_start_time = TimeField(
-        formats='HH:MM',
-        default='08:00'
-    )
-    work_day_end_time = TimeField(
-        formats='HH:MM',
-        default='19:30'
-    )
+    # короткие перерывы между занятиями
+    rest_time = IntegerField(default=10)
 
 class EventDuration(Table):
     """Продолжительности встречи"""
@@ -32,18 +27,40 @@ class EventDuration(Table):
     )
     minutes = IntegerField(default=90)
 
-class WorkDay(Table):
-    """Рабочий день"""
-    date = DateField()
+class WeekDay(Table):
+    """День недели"""
+    name = CharField(unique=True)
+
+class ScheduleTemplate(Table):
+    """Хранит шаблон расписания рабочей недели"""
     user = ForeignKeyField(
         model=User,
         on_update='CASCADE',
         on_delete='CASCADE',
         backref='work_days',
     )
+    week_day = ForeignKeyField(
+        model=WeekDay,
+        on_delete='CASCADE',
+        on_update='CASCADE',
+    )
+    start_time = TimeField()
+    end_time = TimeField()
+
+class Lunch(Table):
+    '''Перерыв на приём пищи'''
+    start_time = TimeField()
+    end_time = TimeField()
+    schedule_template = ForeignKeyField(
+        model=ScheduleTemplate,
+        on_delete='CASCADE',
+        on_update='CASCADE',
+        backref='lunches'
+    )
 
 class Event(Table):
     """Встреча или другое мероприятие"""
+    date = DateField()
     start_time = TimeField()
     end_time = TimeField()
     owner = ForeignKeyField(
@@ -52,8 +69,8 @@ class Event(Table):
         on_delete='CASCADE',
         backref='events',
     )
-    work_day = ForeignKeyField(
-        model=WorkDay,
+    week_day = ForeignKeyField(
+        model=WeekDay,
         on_update='CASCADE',
         on_delete='CASCADE',
         backref='events',
@@ -76,7 +93,10 @@ class Participant(Table):
 
 db.connect()
 db.create_tables(
-    models=[User, EventDuration, WorkDay, Event, Participant],
+    models=[User, EventDuration, WeekDay, ScheduleTemplate, Lunch, Event, Participant],
     safe=True,
 )
+days_of_week = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+for day in days_of_week:
+    WeekDay.get_or_create(name=day)
 db.close()
