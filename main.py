@@ -1,8 +1,11 @@
 '''Бот для записи на встречу'''
+import logging
 import asyncio
 from aiogram import Bot, Dispatcher
 from handlers import include_routers
 
+
+logging.basicConfig(level=logging.DEBUG)
 bot = Bot(token='7144934541:AAHQftb4n4W41M4T1YFEe5UIzjbdbn9N_j8')
 dp = Dispatcher()
 
