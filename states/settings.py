@@ -6,7 +6,7 @@ class SettingsStates(StatesGroup):
     '''Состояния для настроек'''
     select_week = State()
     set_work_time_for_all = State()
-    set_work_time_for_all = State()
+    set_work_time = State()
     set_start_time_for_each = State()
     set_end_time_for_each = State()
     set_start_time_for_edit = State()

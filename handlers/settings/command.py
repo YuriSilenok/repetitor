@@ -9,9 +9,9 @@ from aiogram.fsm.context import FSMContext
 from models import ScheduleTemplate, User
 from keyboards.settings import kb_week_menu, kb_yes_no
 from states.settings import SettingsStates
+from . import constants
 
 
-ID_PATTERN = r'_([0-9]+)$'
 NAME_PATTERN = r'_([А-я]+)$'
 
 router = Router()
@@ -65,17 +65,16 @@ async def no_handler(callback: CallbackQuery):
     await callback.message.delete()
 
 @router.callback_query(SettingsStates.select_week and F.data.startswith('schedule_week_day_'))
-async def schedule_week_day_handler(callback: CallbackQuery, state: FSMContext):
+async def schedule_week_day_handler(callback: CallbackQuery):
     '''Включение и отключение дня'''
-    match = re.search(ID_PATTERN, callback.data)
+    match = re.search(constants.ID_PATTERN, callback.data)
     if match:
         schedule = ScheduleTemplate.get_by_id(int(match.group(1)))
         schedule.enable = not schedule.enable
         schedule.save()
-        data = await state.get_data()
         await callback.bot.edit_message_reply_markup(
             chat_id=callback.message.chat.id,
-            message_id=data['settings_message_id'],
+            message_id=callback.message.message_id,
             reply_markup=await kb_week_menu(User.get(telegram_id=callback.from_user.id))
         )
     
