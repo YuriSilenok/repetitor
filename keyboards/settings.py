@@ -145,9 +145,9 @@ async def kb_yes_no(callback_data:str):
     #     ]
     # )
 
-    return InlineKeyboardMarkup(
-        inline_keyboard=inline_keyboard
-    )
+    # return InlineKeyboardMarkup(
+    #     inline_keyboard=inline_keyboard
+    # )
 
 
 async def kb_duration(user: User) -> InlineKeyboardMarkup:

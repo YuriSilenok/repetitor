@@ -1,4 +1,4 @@
-'''Модуль установки времени для рабочего дня'''
+'''Модуль установки времени для обеденных перерывов'''
 
 import asyncio
 import re
@@ -12,10 +12,10 @@ from . import constants
 
 router = Router()
 
-@router.callback_query(SettingsStates.select_week and F.data.startswith('work_time_header_'))
+@router.callback_query(SettingsStates.select_week and F.data.startswith('lunch_time_header_'))
 async def time_for_all_handler(callback: CallbackQuery, state: FSMContext):
     '''Опрос на получение времени'''
-    await state.set_state(SettingsStates.set_work_time_for_all)
+    await state.set_state(SettingsStates.set_lunch_time_for_all)
     await callback.message.delete()
     send_message = await callback.message.answer(
         text='Укажите время рабочего дня в формате ЧЧ:ММ-ЧЧ:ММ',
@@ -23,7 +23,7 @@ async def time_for_all_handler(callback: CallbackQuery, state: FSMContext):
     await state.update_data(del_mess_id=send_message.message_id)
 
 
-@router.message(SettingsStates.set_work_time_for_all)
+@router.message(SettingsStates.set_lunch_time_for_all)
 async def set_time_for_all(message: Message, state: FSMContext):
     '''Установка начала рабочего дня'''
     await message.delete()
@@ -38,8 +38,8 @@ async def set_time_for_all(message: Message, state: FSMContext):
     match = re.search(constants.TIME_PATTERN, message.text)
     if match:
         for schedule in User.get(telegram_id=message.from_user.id).schedule:
-            schedule.work_start_time = match.group(1)
-            schedule.work_end_time = match.group(2)
+            schedule.lunch_start_time = match.group(1)
+            schedule.lunch_end_time = match.group(2)
             schedule.save()
 
         await state.set_state(SettingsStates.select_week)
@@ -58,17 +58,17 @@ async def set_time_for_all(message: Message, state: FSMContext):
         send_message = await message.answer(text='Время должно соответствовать формату "ЧЧ:ММ-ЧЧ:ММ"')
         await state.update_data(del_mess_id=send_message.message_id)
 
-@router.callback_query(SettingsStates.select_week and F.data.startswith('schedule_work_time_'))
+@router.callback_query(SettingsStates.select_week and F.data.startswith('schedule_lunch_time_'))
 async def time_handler(callback: CallbackQuery, state: FSMContext):
     '''Опрос на получение конкретного рабочего времени'''
-    await state.set_state(SettingsStates.set_work_time)
+    await state.set_state(SettingsStates.set_lunch_time)
     send_message = await callback.message.answer(
         text='Укажите время рабочего дня в формате ЧЧ:ММ-ЧЧ:ММ',
     )
     await state.update_data(del_mess_id=send_message.message_id)
     await state.update_data(schedule_id=int(re.search(constants.ID_PATTERN, callback.data).group(1)))
 
-@router.message(SettingsStates.set_work_time)
+@router.message(SettingsStates.set_lunch_time)
 async def set_time(message: Message, state: FSMContext):
     '''Установка рабочего времени'''
     await message.delete()
@@ -83,8 +83,8 @@ async def set_time(message: Message, state: FSMContext):
     match = re.search(constants.TIME_PATTERN, message.text)
     if match:
         schedule = ScheduleTemplate.get_by_id(data['schedule_id'])
-        schedule.work_start_time = match.group(1)
-        schedule.work_end_time = match.group(2)
+        schedule.lunch_start_time = match.group(1)
+        schedule.lunch_end_time = match.group(2)
         schedule.save()
 
         await state.set_state(SettingsStates.select_week)
