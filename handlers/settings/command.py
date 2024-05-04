@@ -5,6 +5,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.enums.parse_mode import ParseMode
 
 from models import ScheduleTemplate, User
 from keyboards.settings import kb_week_menu, kb_yes_no
@@ -22,8 +23,17 @@ async def settings_handler(message: Message, state: FSMContext):
     user = User.get(telegram_id=message.from_user.id)
     await state.set_state(SettingsStates.select_week)
     send_message = await message.answer(
-        text='Ваши настройки расписания',
-        reply_markup=await kb_week_menu(user=user)
+        text='Это настройки для репетитора. \
+Здесь Вы можете задать расписание для ваших занятий. \
+Это позволит Вашим ученикам забронировать свободное время для занятия. \
+В столбце `Д.Нед` Вы можете выбрать дни, в которые вы хотите проводить занятия. \
+В столбце `Раб.вр` Вы можете указать рабочее время для всей недели или индивидуально для каждого дня. \
+Если кликнуть по названию столбца, то время будет установлено для всей недели. \
+В столбце `Обед` Вы можете задать время перерыва для всей недели или индивидуально для каждого дня. \
+В столбце `Перер` Вы можете задать перерыв между занятиями для всей недели или индивидуально для \
+каждого дня.'.replace('.', r'\.'),
+        reply_markup=await kb_week_menu(user=user),
+        parse_mode=ParseMode.MARKDOWN_V2,
     )
     await state.update_data(settings_message_id=send_message.message_id)
 
@@ -77,4 +87,13 @@ async def schedule_week_day_handler(callback: CallbackQuery):
             message_id=callback.message.message_id,
             reply_markup=await kb_week_menu(User.get(telegram_id=callback.from_user.id))
         )
-    
+
+@router.callback_query(SettingsStates.select_week and F.data == 'close_settings')
+async def close_settings_handler(callback: CallbackQuery, state: FSMContext):
+    '''Закрыть настройки'''
+    data = await state.get_data()
+    await callback.bot.delete_message(
+        chat_id=callback.message.chat.id,
+        message_id=data['settings_message_id']
+    )
+    await state.clear()

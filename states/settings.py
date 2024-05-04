@@ -9,6 +9,5 @@ class SettingsStates(StatesGroup):
     set_work_time = State()
     set_lunch_time_for_all = State()
     set_lunch_time = State()
-
-    set_start_time_for_edit = State()
-    set_end_time_for_edit = State()
+    set_timeout_for_all = State()
+    set_timeout = State()

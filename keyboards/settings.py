@@ -75,6 +75,14 @@ async def kb_week_menu(user: User):
         )
 
         inline_keyboard.append(row)
+    inline_keyboard.append(
+        [
+            InlineKeyboardButton(
+                text = 'Закрыть',
+                callback_data='close_settings'
+            )
+        ]
+    )
     return InlineKeyboardMarkup(
         inline_keyboard=inline_keyboard
     )
