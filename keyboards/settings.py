@@ -51,7 +51,7 @@ async def kb_week_menu(user: User):
                 callback_data=f'schedule_work_time_{schedule.id}'
             )
         )
-        
+
         text = '??:??-??:??'
         if schedule.lunch_start_time and schedule.lunch_end_time:
             start_time = schedule.lunch_start_time.strftime("%H:%M")

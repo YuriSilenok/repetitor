@@ -67,7 +67,9 @@ async def time_handler(callback: CallbackQuery, state: FSMContext):
         text='Укажите продолжительность перерыва в минутах',
     )
     await state.update_data(del_mess_id=send_message.message_id)
-    await state.update_data(schedule_id=int(re.search(constants.ID_PATTERN, callback.data).group(1)))
+    await state.update_data(
+        schedule_id=int(re.search(constants.ID_PATTERN, callback.data).group(1))
+    )
 
 @router.message(SettingsStates.set_timeout)
 async def set_time(message: Message, state: FSMContext):

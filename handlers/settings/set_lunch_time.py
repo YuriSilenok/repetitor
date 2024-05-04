@@ -55,7 +55,9 @@ async def set_time_for_all(message: Message, state: FSMContext):
             message_id=send_message.message_id
         )
     else:
-        send_message = await message.answer(text='Время должно соответствовать формату "ЧЧ:ММ-ЧЧ:ММ"')
+        send_message = await message.answer(
+            text='Время должно соответствовать формату "ЧЧ:ММ-ЧЧ:ММ"'
+        )
         await state.update_data(del_mess_id=send_message.message_id)
 
 @router.callback_query(SettingsStates.select_week and F.data.startswith('schedule_lunch_time_'))
@@ -66,7 +68,9 @@ async def time_handler(callback: CallbackQuery, state: FSMContext):
         text='Укажите время рабочего дня в формате ЧЧ:ММ-ЧЧ:ММ',
     )
     await state.update_data(del_mess_id=send_message.message_id)
-    await state.update_data(schedule_id=int(re.search(constants.ID_PATTERN, callback.data).group(1)))
+    await state.update_data(
+        schedule_id=int(re.search(constants.ID_PATTERN, callback.data).group(1))
+    )
 
 @router.message(SettingsStates.set_lunch_time)
 async def set_time(message: Message, state: FSMContext):
@@ -75,7 +79,7 @@ async def set_time(message: Message, state: FSMContext):
     data = await state.get_data()
     if 'del_mess_id' in data:
         await message.bot.delete_message(
-            chat_id=message.chat.id, 
+            chat_id=message.chat.id,
             message_id=data['del_mess_id']
         )
         del data['del_mess_id']
